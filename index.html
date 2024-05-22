@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1">
+    <title>LaunchDarkly tutorial</title>
+    <script src="https://unpkg.com/launchdarkly-js-client-sdk@3"></script>
+  </head>
+  <body style="margin: 0;
+  background: #373841;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center">
+    <script>
+    function main()
+    {
+      // Function to detect browser type
+      function getBrowserType() {
+        const userAgent = navigator.userAgent;
+        let browserName = 'Unknown';
+
+        if (userAgent.indexOf('Firefox') > -1) {
+          browserName = 'Firefox';
+        } else if (userAgent.indexOf('SamsungBrowser') > -1) {
+          browserName = 'Samsung Internet';
+        } else if (userAgent.indexOf('Opera') > -1 || userAgent.indexOf('OPR') > -1) {
+          browserName = 'Opera';
+        } else if (userAgent.indexOf('Trident') > -1) {
+          browserName = 'Internet Explorer';
+        } else if (userAgent.indexOf('Edge') > -1) {
+          browserName = 'Microsoft Edge';
+        } else if (userAgent.indexOf('Chrome') > -1) {
+          browserName = 'Chrome';
+        } else if (userAgent.indexOf('Safari') > -1) {
+          browserName = 'Safari';
+        }
+
+        return browserName;
+      }
+
+      // Set clientSideID to your LaunchDarkly client-side ID
+      const clientSideID = '664e56be6d3bb91063720807';
+
+      // Set flagKey to the feature flag key you want to evaluate
+      const flagKey = 'sample-feature';
+
+      // Set up the evaluation context. This context should appear on your
+      // LaunchDarkly contexts dashboard soon after you run the demo.
+      const context = {
+        kind: 'user',
+        key: 'thistest',
+        name: 'Sandy',
+        browser: getBrowserType()
+      };
+
+      var div = document.createElement('div');
+      document.body.appendChild(div);
+      div.appendChild(document.createTextNode('Initializing...'));
+
+      const ldclient = LDClient.initialize(clientSideID, context);
+
+      function render() {
+        const flagValue = ldclient.variation(flagKey, false);
+        const browserType = context.browser;
+        const label = 'The ' + flagKey + ' feature flag evaluates to ' + flagValue + '. Browser: ' + browserType;
+        document.body.style.background = flagValue ? '#00844B' : '#373841';
+        div.replaceChild(document.createTextNode(label), div.firstChild);
+      }
+
+      ldclient.on('initialized', () => {
+        div.replaceChild(document.createTextNode('SDK successfully initialized!'), div.firstChild);
+      });
+      ldclient.on('failed', () => {
+        div.replaceChild(document.createTextNode('SDK failed to initialize'), div.firstChild);
+      });
+      ldclient.on('ready', render);
+      ldclient.on('change', render);
+
+    }
+    main();
+    </script>
+  </body>
+</html>
